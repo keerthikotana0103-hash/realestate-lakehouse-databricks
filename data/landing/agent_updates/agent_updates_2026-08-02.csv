@@ -1,0 +1,2 @@
+agent_id,first_name,last_name,email,office_id,license_date,status,updated_at,operation
+AG0070,Isabel,Chen,isabel.chen70@example.com,OF005,2012-04-08,Active,2026-08-02T12:30:19,UPDATE

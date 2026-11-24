@@ -1,0 +1,3 @@
+agent_id,first_name,last_name,email,office_id,license_date,status,updated_at,operation
+AG0123,David,Reddy,david.reddy123@example.com,OF012,2012-07-25,Active,2026-09-27T11:52:06,UPDATE
+AG0165,Robert,Johnson,robert.johnson165@example.com,OF006,2026-09-27,Active,2026-09-27T11:27:40,INSERT

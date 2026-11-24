@@ -1,0 +1,17 @@
+office_id,office_name,brand,metro,region
+OF001,Keystone Realty - Austin North,Keystone Realty,Austin,Texas
+OF002,Cornerstone Homes - Austin South,Cornerstone Homes,Austin,Texas
+OF003,Cornerstone Homes - Dallas North,Cornerstone Homes,Dallas,Texas
+OF004,Bluegate Properties - Dallas South,Bluegate Properties,Dallas,Texas
+OF005,Bluegate Properties - Phoenix North,Bluegate Properties,Phoenix,West
+OF006,Summit Realty Group - Phoenix South,Summit Realty Group,Phoenix,West
+OF007,Summit Realty Group - Denver North,Summit Realty Group,Denver,West
+OF008,Keystone Realty - Denver South,Keystone Realty,Denver,West
+OF009,Keystone Realty - Seattle North,Keystone Realty,Seattle,West
+OF010,Cornerstone Homes - Seattle South,Cornerstone Homes,Seattle,West
+OF011,Cornerstone Homes - Atlanta North,Cornerstone Homes,Atlanta,Southeast
+OF012,Bluegate Properties - Atlanta South,Bluegate Properties,Atlanta,Southeast
+OF013,Bluegate Properties - Charlotte North,Bluegate Properties,Charlotte,Southeast
+OF014,Summit Realty Group - Charlotte South,Summit Realty Group,Charlotte,Southeast
+OF015,Summit Realty Group - Tampa North,Summit Realty Group,Tampa,Southeast
+OF016,Keystone Realty - Tampa South,Keystone Realty,Tampa,Southeast

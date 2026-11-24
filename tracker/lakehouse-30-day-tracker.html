@@ -1,0 +1,296 @@
+<title>Lakehouse 30-Day Tracker</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style id="app-style">
+/* Layout: a survey-plat ledger, one header band, then four week sections of day rows */
+:root {
+  --bg: #f3f5f4; --surface: #ffffff; --ink: #18221f; --muted: #5b6863; --line: #d9e0dc;
+  --accent: #0d6b5c; --accent-soft: #dcefe9; --de: #2a5bb8; --de-soft: #e3ebfa; --bi: #a35a00; --bi-soft: #fbecd8;
+  --done: #7d8a85;
+  --display: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
+  --body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #111816; --surface: #18211e; --ink: #e6ece9; --muted: #9aa8a2; --line: #2a3632;
+  --accent: #4fc2a9; --accent-soft: #173a32; --de: #8fb0f0; --de-soft: #1d2a45; --bi: #f0b265; --bi-soft: #3a2a14; --done: #6f7d77; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #111816; --surface: #18211e; --ink: #e6ece9; --muted: #9aa8a2; --line: #2a3632;
+  --accent: #4fc2a9; --accent-soft: #173a32; --de: #8fb0f0; --de-soft: #1d2a45; --bi: #f0b265; --bi-soft: #3a2a14; --done: #6f7d77; color-scheme: dark }
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.55 var(--body); }
+.wrap { max-width: 980px; margin: 0 auto; padding-block: 28px 64px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+header { display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: end; padding-bottom: 22px; border-bottom: 2px solid var(--ink); }
+.eyebrow { font: 500 12px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+h1 { font: 700 clamp(28px, 5vw, 40px)/1.05 var(--display); margin: 8px 0 8px; text-wrap: balance; }
+.sub { color: var(--muted); max-width: 60ch; margin: 0; }
+.sub a { color: var(--accent); }
+.meter { text-align: right; min-width: 160px; }
+.meter .pct { font: 700 44px/1 var(--display); font-variant-numeric: tabular-nums; }
+.meter .count { color: var(--muted); font: 13px var(--mono); }
+.bar { height: 8px; background: var(--line); border-radius: 4px; overflow: hidden; margin-top: 8px; }
+.bar > i { display: block; height: 100%; background: var(--accent); width: 0; transition: width .3s; }
+.status { margin: 14px 0 0; font: 13px var(--mono); color: var(--muted); min-height: 1.4em; }
+.legend { display: flex; flex-wrap: wrap; gap: 8px 16px; margin: 18px 0 4px; font-size: 13px; color: var(--muted); }
+.pill { display: inline-block; font: 600 11px/1 var(--mono); letter-spacing: .05em; padding: 4px 7px; border-radius: 4px; white-space: nowrap; }
+.pill.de { background: var(--de-soft); color: var(--de); }
+.pill.bi { background: var(--bi-soft); color: var(--bi); }
+.pill.both { background: var(--accent-soft); color: var(--accent); }
+section.week { margin-top: 36px; }
+.week-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 6px 16px; border-bottom: 1px solid var(--line); padding-bottom: 8px; }
+.week-head h2 { font: 600 21px/1.2 var(--display); margin: 0; }
+.week-head .goal { color: var(--muted); font-size: 14px; flex-basis: 100%; }
+.week-head .wk { font: 500 13px var(--mono); color: var(--muted); font-variant-numeric: tabular-nums; }
+.day { display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 14px; padding: 16px 0; border-bottom: 1px solid var(--line); }
+.day .num { font: 600 13px/1 var(--mono); color: var(--muted); padding-top: 4px; }
+.day .num b { display: block; font: 700 26px/1 var(--display); color: var(--ink); margin-top: 4px; font-variant-numeric: tabular-nums; }
+.day.complete .num b { color: var(--done); text-decoration: line-through; text-decoration-thickness: 2px; }
+.day-title { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 0 0 8px; }
+.day-title h3 { font: 600 16px/1.3 var(--display); margin: 0; }
+.tasks { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.tasks label { display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 10px; align-items: start; cursor: pointer; }
+.tasks input { width: 17px; height: 17px; margin: 3px 0 0; accent-color: var(--accent); cursor: pointer; }
+.tasks input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.tasks input:checked + span { color: var(--done); text-decoration: line-through; }
+code { font: 13px var(--mono); background: var(--accent-soft); color: var(--ink); padding: 1px 5px; border-radius: 3px; overflow-wrap: anywhere; }
+.links { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 10px; font-size: 13px; }
+.links a { color: var(--accent); text-decoration: none; border-bottom: 1px solid currentColor; }
+.links a:hover { border-bottom-width: 2px; }
+.links a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+footer { margin-top: 40px; color: var(--muted); font-size: 13px; }
+@media (max-width: 600px) {
+  header { grid-template-columns: 1fr; }
+  .meter { text-align: left; }
+  .day { grid-template-columns: 40px minmax(0, 1fr); gap: 10px; }
+  .day .num b { font-size: 22px; }
+}
+@media (prefers-reduced-motion: reduce) { .bar > i { transition: none; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <div class="eyebrow">Real estate market lakehouse · Databricks</div>
+      <h1>30 days to data engineer + BI engineer</h1>
+      <p class="sub">Tick tasks as you finish them. Your progress saves to this page. Full explanations are in the <a href="https://claude.ai/artifact/2AfSfWSFRwwgzuSd6GS7FK" target="_blank" rel="noopener">learning guide</a>; notebooks live in your <code>realestate-lakehouse-databricks</code> repo.</p>
+    </div>
+    <div class="meter" aria-live="polite">
+      <div class="pct" id="pct">0%</div>
+      <div class="count" id="count">0 of 0 tasks</div>
+      <div class="bar"><i id="bar"></i></div>
+    </div>
+  </header>
+  <p class="status" id="status">Loading saved progress…</p>
+  <div class="legend">
+    <span><span class="pill de">DE</span> data engineering</span>
+    <span><span class="pill bi">BI</span> BI engineering</span>
+    <span><span class="pill both">BOTH</span> foundations and interview prep</span>
+  </div>
+  <main id="app"></main>
+  <footer>Dataset: synthetic MLS feed, 2026-07-01 to 2026-09-28, 8 metros. Links checked 2026-11-23.</footer>
+</div>
+
+<script type="application/json" id="state">{"done":{},"updated":null}</script>
+
+<script id="app-script">
+(function () {
+  var D = "https://docs.databricks.com/aws/en/";
+  var L = {
+    free: ["Free Edition", "https://www.databricks.com/learn/free-edition"],
+    freeDocs: ["Free Edition guide", D + "getting-started/free-edition"],
+    git: ["Git folders", D + "repos/"],
+    uc: ["Unity Catalog", D + "data-governance/unity-catalog/"],
+    vol: ["Volumes", D + "volumes/"],
+    pyspark: ["PySpark docs", "https://spark.apache.org/docs/latest/api/python/index.html"],
+    delta: ["Delta Lake", D + "delta/"],
+    hist: ["Table history", D + "tables/history"],
+    opt: ["Optimizations", D + "optimizations/"],
+    merge: ["MERGE INTO", D + "delta/merge"],
+    al: ["Auto Loader", D + "ingestion/cloud-object-storage/auto-loader/"],
+    ss: ["Streaming concepts", D + "structured-streaming/concepts"],
+    ldp: ["Declarative Pipelines", D + "ldp/"],
+    exp: ["Expectations", D + "ldp/expectations"],
+    cdc: ["AUTO CDC", D + "ldp/cdc"],
+    clus: ["Liquid clustering", D + "tables/clustering"],
+    jobs: ["Lakeflow Jobs", D + "jobs/"],
+    wh: ["SQL warehouses", D + "compute/sql-warehouse/"],
+    dash: ["AI/BI dashboards", D + "dashboards/"],
+    mv: ["Metric views", D + "uc-semantics/metric-views/"],
+    genie: ["Genie", D + "genie/"],
+    pbi: ["Power BI", D + "partners/bi/power-bi/"],
+    rls: ["Row filters & masks", D + "data-governance/unity-catalog/filters-and-masks/"],
+    dab: ["Asset Bundles", D + "dev-tools/bundles/"],
+    dabx: ["bundle-examples", "https://github.com/databricks/bundle-examples"],
+    sys: ["System tables", D + "admin/system-tables/"],
+    lin: ["Lineage", D + "data-governance/unity-catalog/data-lineage"],
+    guide: ["Learning guide", "https://claude.ai/artifact/2AfSfWSFRwwgzuSd6GS7FK"],
+    cde: ["DE Associate cert", "https://www.databricks.com/learn/certification/data-engineer-associate"],
+    cda: ["Analyst Associate cert", "https://www.databricks.com/learn/certification/data-analyst-associate"],
+    fred: ["FRED mortgage rates", "https://fred.stlouisfed.org/series/MORTGAGE30US"]
+  };
+  var WEEKS = [
+    { name: "Week 0 · Setup", goal: "Workspace and repo ready.", days: [
+      [0, "Accounts and repo", "both", ["Sign up for Databricks Free Edition", "Push the <code>realestate-lakehouse-databricks</code> repo to GitHub", "Create a Git folder in Databricks from your repo URL"], ["free", "freeDocs", "git"]]
+    ]},
+    { name: "Week 1 · Foundations", goal: "Raw feed landed as Delta bronze; you can explain Delta and Spark execution.", days: [
+      [1, "Lakehouse and workspace tour", "both", ["Read the Free Edition guide", "Explore Workspace, Catalog Explorer, Compute and SQL Editor", "Write Day 1 in <code>notes/interview_log.md</code>"], ["freeDocs", "guide"]],
+      [2, "Unity Catalog and volumes", "de", ["Run <code>00_setup</code>", "Run <code>01_land_files</code> through 2026-07-07", "Find your catalog, schemas and volume in Catalog Explorer"], ["uc", "vol"]],
+      [3, "Profile the raw feed with PySpark", "de", ["Run <code>02_explore_raw</code>", "Record counts of duplicates, bad prices and missing property IDs"], ["pyspark"]],
+      [4, "Delta Lake and bronze", "de", ["Run <code>03_bronze_delta</code>", "Do the time travel + RESTORE demo", "Explain schema enforcement vs evolution out loud"], ["delta", "hist"]],
+      [5, "Spark internals", "de", ["Run <code>04_spark_internals</code>", "Find Exchange and BroadcastHashJoin in the plans", "Answer the 4 checkpoint questions"], ["opt"]],
+      [6, "SQL practice", "bi", ["Study solved Q1 to Q3 in <code>05_sql_practice</code>", "Solve Q4 to Q10 yourself"], ["merge"]],
+      [7, "Review week 1", "both", ["Add the architecture diagram to README", "Commit and push", "Re-read the week's interview notes"], ["guide"]]
+    ]},
+    { name: "Week 2 · Data engineering", goal: "Incremental, clean, historized, orchestrated.", days: [
+      [8, "Auto Loader into bronze", "de", ["Build <code>10_autoloader_bronze</code> with cloudFiles + schemaLocation", "Check <code>_rescued_data</code>"], ["al"]],
+      [9, "Streaming and checkpoints", "de", ["Land files through 2026-07-14", "Rerun with availableNow and prove only new files load"], ["ss"]],
+      [10, "Silver: clean and dedup", "de", ["Build <code>11_silver_listings</code> with explicit types", "Dedup on event_id", "Send bad rows to a quarantine table"], ["delta"]],
+      [11, "SCD Type 2 with MERGE", "de", ["Build <code>12_scd2_agents</code> (valid_from, valid_to, is_current)", "Verify an agent's office move shows as 2 rows"], ["merge"]],
+      [12, "Declarative pipeline", "de", ["Rebuild bronze to silver as a Lakeflow Declarative Pipeline", "Add expectations (drop + warn)", "Listing history via AUTO CDC as SCD2"], ["ldp", "exp", "cdc"]],
+      [13, "Performance tuning", "de", ["Add liquid clustering on listing_id / close_date", "Record before/after query time"], ["clus", "opt"]],
+      [14, "Orchestrate with Jobs", "de", ["Job: land files, pipeline, gold build", "Add retries and a failure email", "Land all remaining files and run it end to end"], ["jobs"]]
+    ]},
+    { name: "Week 3 · BI engineering", goal: "Governed KPIs on dashboards, Genie and Power BI, secured by region.", days: [
+      [15, "Dimensional model", "bi", ["Define the grain of each fact", "Draw the star schema in README"], ["guide"]],
+      [16, "Build gold", "bi", ["Build fact_sale, fact_listing_event, daily snapshot", "Build dims + agg_market_weekly"], ["merge"]],
+      [17, "SQL warehouse", "bi", ["Run KPI queries on a SQL warehouse", "Read one query profile and note the slowest step"], ["wh"]],
+      [18, "Market Pulse dashboard", "bi", ["KPI counters with week-over-week change", "Listings vs pendings vs mortgage rate", "DOM by metro, price-cut rate, agent leaderboard"], ["dash"]],
+      [19, "Metric views and Genie", "bi", ["Define DOM, list-to-sale, months of supply in a metric view", "Create a Genie space with 5 sample questions"], ["mv", "genie"]],
+      [20, "Power BI", "bi", ["Connect Power BI to the SQL warehouse", "Compare DirectQuery vs Import", "Rebuild 3 visuals; check numbers match"], ["pbi"]],
+      [21, "Row-level security", "bi", ["Row filter on region", "Column mask on agent email", "Test as a non-admin user or group"], ["rls"]]
+    ]},
+    { name: "Week 4 · Production and interview prep", goal: "Deployable from Git, monitored, tested; story ready.", days: [
+      [22, "Asset Bundles", "de", ["Write <code>databricks.yml</code> with dev and prod targets", "Deploy the pipeline and job from the bundle"], ["dab", "dabx"]],
+      [23, "Monitoring", "de", ["Query system.billing.usage and system.access.audit", "Set up job and data-quality alerts"], ["sys"]],
+      [24, "Lineage", "both", ["Screenshot volume to dashboard lineage for README"], ["lin"]],
+      [25, "Cost decisions", "de", ["Write the cost section: serverless, auto-stop, warehouse size"], ["opt", "wh"]],
+      [26, "Tests", "de", ["pytest for dedup and SCD2 functions in <code>tests/</code>"], ["git"]],
+      [27, "Polish README", "both", ["Screenshots, design decisions, at-100x-scale section", "Optional: swap in real FRED mortgage rates"], ["fred"]],
+      [28, "Interview stories", "both", ["Record the 60-second pitch", "Record 2 DE and 2 BI STAR stories"], ["guide"]],
+      [29, "Mock interview", "both", ["Answer all 15 bank questions without notes", "Fix the 3 weakest answers"], ["guide"]],
+      [30, "Certification practice", "both", ["Take a practice exam", "Book the exam if you score 80%+"], ["cde", "cda"]]
+    ]}
+  ];
+
+  var stateEl = document.getElementById("state");
+  var state;
+  try { state = JSON.parse(stateEl.textContent); } catch (e) { state = { done: {}, updated: null }; }
+  if (!state.done) state.done = {};
+
+  var LS_KEY = "lakehouse-tracker-done";
+  var mode = "pending"; // "artifact" | "local"
+  var artifactApi = null, saveTimer = null;
+  var statusEl = document.getElementById("status");
+
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  function taskId(day, i) { return "d" + day + "t" + i; }
+
+  function render() {
+    var html = "";
+    WEEKS.forEach(function (w, wi) {
+      var wTotal = 0, wDone = 0;
+      w.days.forEach(function (d) { d[3].forEach(function (_, i) { wTotal++; if (state.done[taskId(d[0], i)]) wDone++; }); });
+      html += '<section class="week"><div class="week-head"><h2>' + esc(w.name) + '</h2><span class="wk">' + wDone + "/" + wTotal + '</span><span class="goal">' + esc(w.goal) + "</span></div>";
+      w.days.forEach(function (d) {
+        var all = d[3].every(function (_, i) { return state.done[taskId(d[0], i)]; });
+        var tag = d[2] === "de" ? "DE" : d[2] === "bi" ? "BI" : "BOTH";
+        html += '<article class="day' + (all ? " complete" : "") + '"><div class="num">DAY<b>' + d[0] + "</b></div><div>";
+        html += '<div class="day-title"><h3>' + esc(d[1]) + '</h3><span class="pill ' + d[2] + '">' + tag + "</span></div><ul class=\"tasks\">";
+        d[3].forEach(function (t, i) {
+          var id = taskId(d[0], i);
+          html += '<li><label><input type="checkbox" id="' + id + '" data-id="' + id + '"' + (state.done[id] ? " checked" : "") + "><span>" + t + "</span></label></li>";
+        });
+        html += '</ul><div class="links">';
+        d[4].forEach(function (k) { var l = L[k]; html += '<a href="' + l[1] + '" target="_blank" rel="noopener">' + esc(l[0]) + "</a>"; });
+        html += "</div></div></article>";
+      });
+      html += "</section>";
+    });
+    document.getElementById("app").innerHTML = html;
+    updateMeter();
+  }
+
+  function updateMeter() {
+    var total = 0, done = 0;
+    WEEKS.forEach(function (w) { w.days.forEach(function (d) { d[3].forEach(function (_, i) { total++; if (state.done[taskId(d[0], i)]) done++; }); }); });
+    var pct = total ? Math.round(done * 100 / total) : 0;
+    document.getElementById("pct").textContent = pct + "%";
+    document.getElementById("count").textContent = done + " of " + total + " tasks";
+    document.getElementById("bar").style.width = pct + "%";
+  }
+
+  function setStatus(msg) { statusEl.textContent = msg; }
+
+  function buildDocument() {
+    var css = document.getElementById("app-style").textContent;
+    var js = document.getElementById("app-script").textContent;
+    var headBits = '<title>Lakehouse 30-Day Tracker</title>\n<meta name="claude:viewport-fit-sides" content="cover">\n' +
+      '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">\n';
+    var shell = document.querySelector(".wrap").cloneNode(true);
+    shell.querySelector("#app").innerHTML = "";
+    shell.querySelector("#status").textContent = "Loading saved progress…";
+    shell.querySelector("#pct").textContent = "0%";
+    shell.querySelector("#count").textContent = "0 of 0 tasks";
+    shell.querySelector("#bar").removeAttribute("style");
+    var json = JSON.stringify(state).replace(/</g, "\\u003c");
+    return '<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>' +
+      ':root{color-scheme:light;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}' +
+      "</style></head><body>" + headBits + '<style id="app-style">' + css + "</style>\n\n" + shell.outerHTML +
+      '\n\n<script type="application/json" id="state">' + json + "<\/script>\n\n<script id=\"app-script\">" + js + "<\/script>\n</body></html>";
+  }
+
+  function save() {
+    state.updated = new Date().toISOString().slice(0, 10);
+    if (mode === "artifact" && artifactApi) {
+      clearTimeout(saveTimer);
+      setStatus("Saving…");
+      saveTimer = setTimeout(function () {
+        artifactApi.publish(buildDocument()).then(function () { setStatus("Saved"); }, function (err) {
+          var code = err && err.code;
+          if (code === "conflict") setStatus("Another save landed first; the page is reloading to it.");
+          else if (code === "not_granted" || code === "not_writer") { mode = "local"; saveLocal(); setStatus("You can view this page but not save to it. Progress is kept in this browser only."); }
+          else setStatus("Couldn't save. Tick again in a moment to retry.");
+        });
+      }, 1200);
+    } else {
+      saveLocal();
+      setStatus("Saved in this browser only.");
+    }
+  }
+  function saveLocal() { try { localStorage.setItem(LS_KEY, JSON.stringify(state.done)); } catch (e) {} }
+
+  document.getElementById("app").addEventListener("change", function (e) {
+    var id = e.target && e.target.getAttribute("data-id");
+    if (!id) return;
+    if (e.target.checked) state.done[id] = true; else delete state.done[id];
+    var art = e.target.closest(".day");
+    var boxes = art.querySelectorAll("input[type=checkbox]");
+    var all = Array.prototype.every.call(boxes, function (b) { return b.checked; });
+    art.classList.toggle("complete", all);
+    render();
+    var el = document.getElementById(id); if (el) el.focus();
+    save();
+  });
+
+  render();
+  setStatus(state.updated ? "Last saved " + state.updated : "Tick a task to start.");
+
+  var use = window.claude && window.claude.use;
+  if (use) {
+    window.claude.use("artifact").then(function (a) {
+      if (a) { artifactApi = a; mode = "artifact"; }
+      else fallbackLocal();
+    }, fallbackLocal);
+  } else fallbackLocal();
+
+  function fallbackLocal() {
+    mode = "local";
+    try {
+      var saved = JSON.parse(localStorage.getItem(LS_KEY) || "null");
+      if (saved && typeof saved === "object") { Object.keys(saved).forEach(function (k) { state.done[k] = true; }); render(); }
+    } catch (e) {}
+    setStatus("Progress is kept in this browser only.");
+  }
+})();
+</script>

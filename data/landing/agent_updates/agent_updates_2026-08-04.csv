@@ -1,0 +1,2 @@
+agent_id,first_name,last_name,email,office_id,license_date,status,updated_at,operation
+AG0019,Kevin,Nguyen,kevin.nguyen19@example.com,OF004,2013-12-09,Active,2026-08-04T21:55:18,UPDATE

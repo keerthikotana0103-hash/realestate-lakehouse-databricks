@@ -1,0 +1,2 @@
+sale_id,listing_id,property_id,close_date,sale_price,listing_agent_id,buyer_agent_id,financing_type,loan_amount,record_version,reported_at
+S0000001,L0000289,P004380,2026-07-22,1154000,AG0039,AG0151,Conventional,825838,1,2026-07-22T18:45:50
